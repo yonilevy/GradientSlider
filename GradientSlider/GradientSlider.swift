@@ -329,7 +329,7 @@ import UIKit
         let diameter = max(thumbSize,44.0)
         let r = CGRect(x: center.x - diameter/2.0, y: center.y - diameter/2.0, width: diameter, height: diameter)
         if r.contains(pt){
-            sendActions(for: UIControl.Event.touchDown)
+            sendActions(forControlEvents: [UIControl.Event.touchDown, UIControl.Event.valueChanged], withUIEvent: event)
             return true
         }
         return false
@@ -341,7 +341,7 @@ import UIKit
         let newValue = valueForLocation(point: pt)
         setValue(newValue, animated: false)
         if(continuous){
-            sendActions(for: UIControl.Event.valueChanged)
+            sendActions(forControlEvents: [UIControl.Event.valueChanged], withUIEvent: event)
             actionBlock(self,newValue,false)
         }
         return true
@@ -354,8 +354,7 @@ import UIKit
             setValue(newValue, animated: false)
         }
         actionBlock(self,_value,true)
-        sendActions(for: [UIControl.Event.valueChanged, UIControl.Event.touchUpInside])
-        
+        sendActions(forControlEvents: [UIControl.Event.valueChanged, UIControl.Event.touchUpInside], withUIEvent: event)
     }
     
     //MARK: - Private Functions
@@ -428,6 +427,20 @@ import UIKit
         let colors = locations.map({return UIColor(hue: $0, saturation: s, brightness: l, alpha: a).cgColor})
         _trackLayer.colors = colors
         _trackLayer.locations = locations as [NSNumber]
+    }
+
+    private func sendActions(forControlEvents controlEvents: [UIControl.Event], withUIEvent uiEvent: UIEvent?) {
+        for target in allTargets {
+            for controlEvent in controlEvents {
+                guard let allActions = actions(forTarget: target, forControlEvent: controlEvent)
+                        else {
+                    continue
+                }
+                for action in allActions {
+                    sendAction(NSSelectorFromString(action), to: target, for: uiEvent)
+                }
+            }
+        }
     }
 }
 
