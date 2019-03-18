@@ -8,7 +8,7 @@
 
 import UIKit
 
-@IBDesignable class GradientSlider: UIControl {
+@IBDesignable @objcMembers class GradientSlider: UIControl {
     
     static var defaultThickness:CGFloat = 2.0
     static var defaultThumbSize:CGFloat = 28.0
